@@ -25,7 +25,9 @@ if not exist "%VENV_PYTHON%" (
 )
 
 echo [INFO] Streamlit ダッシュボードを起動中 (http://localhost:8501)...
-"%VENV_STREAMLIT%" run system\streamlit_app.py --server.port 8501 --server.headless false
+start http://localhost:8501
+"%VENV_STREAMLIT%" run system\streamlit_app.py --server.port 8501 --server.headless true
 
 pause
+
 
