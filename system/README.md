@@ -59,9 +59,9 @@ occ-web/
     │   ├── occ_wrapper.py      # occ.exe ラッパー
     │   ├── streamer.py         # RTP 映像受信 & 配信（省電力ハートビート付）
     │   ├── net_utils.py        # NIC 検出 & IP 計算ユーティリティ
-    │   ├── occ.exe             # 通信バイナリ (配置済み)
-    │   └── requirements.txt    # 依存ライブラリ一覧
+    │   └── occ.exe             # 通信バイナリ ※別途ダウンロード必要 (GPL-3.0)
     └── frontend/               # Web フロントエンド
+
         ├── index.html          # HTML 構造
         ├── style.css           # ダークテーマ CSS
         └── app.js              # アプリケーションロジック
