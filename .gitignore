@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+system/.venv/
+
+# OS / Editor
+desktop.ini
+Thumbs.db
+.DS_Store
+*.swp
+*~
+.vscode/
+.idea/
+
+# Logs & Temp
+*.log
+*.tmp
