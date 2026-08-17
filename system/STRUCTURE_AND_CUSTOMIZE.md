@@ -32,24 +32,28 @@
 occ-web/
 │
 ├── start.bat                   ★ 起動用バッチファイル（ダブルクリックで起動）
+├── requirements.txt            ★ Python依存パッケージ一覧
+├── LICENSE                     ★ MIT License
+├── THIRD_PARTY_LICENSES.md     ★ オープンソース使用表示
+├── README.md                   ★ 全体ドキュメント
 │
 └── system/                     【システム内部フォルダ】
-    ├── README.md               ★ 全体概要・クイックスタート
+    ├── README.md               ★ 内部仕様書
     ├── STRUCTURE_AND_CUSTOMIZE.md ★ 本ドキュメント（構成と修正ガイド）
     │
     ├── backend/                【バックエンド (Python)】
-    │   ├── app.py              ★ Webサーバー & REST API エンドポイント
+    │   ├── app.py              ★ Webサーバー (Waitress) & REST API エンドポイント
     │   ├── occ_wrapper.py      ★ occ.exe を呼び出すラッパー処理
-    │   ├── streamer.py         ★ RTP映像受信 & ブラウザ向けリアルタイム配信処理
-    │   ├── net_utils.py        ★ ネットワーク検出処理
-    │   ├── occ.exe             ★ Orlacoカメラ通信用バイナリ (配置済み)
-    │   └── requirements.txt    ★ Python依存パッケージ一覧
+    │   ├── streamer.py         ★ RTP映像受信 & イベント駆動リアルタイム配信処理
+    │   ├── net_utils.py        ★ ネットワーク検出処理 (ipaddress対応)
+    │   └── occ.exe             ★ Orlacoカメラ通信用バイナリ (※別途ダウンロード必要)
     │
     └── frontend/               【フロントエンド (HTML / CSS / JavaScript)】
-        ├── index.html          ★ Web画面の構造（レイアウト・タブ・モーダル）
-        ├── style.css           ★ デザイン・ダークテーマ・レスポンシブスタイル
+        ├── index.html          ★ Web画面の構造（レイアウト・タブ・モーダル・産業用OSD）
+        ├── style.css           ★ デザイン・ダークテーマ・Subtle発光スタイル
         └── app.js              ★ 画面操作ロジック（API通信・状態管理・プリセット）
 ```
+
 
 ---
 
