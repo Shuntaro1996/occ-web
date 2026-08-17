@@ -11,6 +11,17 @@
 
 ---
 
+### 🚀 Live Demo (オンライン即時起動)
+
+インストール不要でブラウザから直接ダッシュボードを起動・体験できます：
+
+👉 **Live Demo: [https://net-ops-toolkit.streamlit.app](https://net-ops-toolkit.streamlit.app/)**
+
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://net-ops-toolkit.streamlit.app/)
+
+---
+
+
 ## 🌟 主な機能 (Key Features)
 
 | 機能 | 詳細 |
@@ -79,22 +90,26 @@ occ-web/
 
 ## 🚀 クイックスタート (Quick Start)
 
-### 動作要件
-* **OS**: Windows 10 / 11 (64-bit) または Linux/macOS (Streamlit版)
-* **Python**: Python 3.10 以上（`python.exe` が PATH に通っていること）
+### 1. 🌐 オンラインで即座に起動（おすすめ）
+
+インストールやセットアップ不要で、ブラウザから直接アプリを起動・体験できます：
+
+👉 **Live Demo: [https://net-ops-toolkit.streamlit.app](https://net-ops-toolkit.streamlit.app/)**
 
 ---
 
-### 起動方法 A: Streamlit 版ダッシュボード（推奨: デモ・提示向け）
+### 2. 💻 ローカル環境での起動（実機接続・オフライン運用）
 
-1. **`start_streamlit.bat`** をダブルクリックします。
-2. 自動的に仮想環境の構築が行われ、ブラウザで `http://localhost:8501` が開きます。
-3. サイドバーの動作モードを「🎮 デモ / シミュレーション」または「⚡ 実機カメラ接続」から選択してご利用ください。
+#### A. Streamlit 版ダッシュボード (Port 8501)
+```bash
+streamlit run streamlit_app.py
+```
+*または `start_streamlit.bat` をダブルクリック*
 
-> 🌐 **Streamlit Community Cloud での公開方法**:
-> 1. 本リポジトリを自身の GitHub アカウントに Fork または Push します。
-> 2. [share.streamlit.io](https://share.streamlit.io/) にログインし、`streamlit_app.py` を指定して Deploy します。
-> 3. クラウド上で全世界のユーザーにデモを提示できます。
+#### B. Flask + Vanilla JS 版 Web GUI (Port 5000)
+1. `system/backend/` に `occ.exe` を配置（[Codemonkey1973/OCC](https://github.com/Codemonkey1973/OCC) から入手）
+2. `start.bat` をダブルクリック（または `python system/backend/app.py`）
+
 
 ---
 
