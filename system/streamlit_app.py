@@ -17,9 +17,14 @@ import streamlit as st
 
 # バックエンドモジュールパスの追加
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-BACKEND_DIR = os.path.join(BASE_DIR, "system", "backend")
+BACKEND_DIR = os.path.join(BASE_DIR, "backend")
+if not os.path.exists(BACKEND_DIR):
+    # ルート等から呼ばれた場合のフォールバック
+    BACKEND_DIR = os.path.join(BASE_DIR, "system", "backend")
+
 if BACKEND_DIR not in sys.path:
     sys.path.insert(0, BACKEND_DIR)
+
 
 try:
     import net_utils

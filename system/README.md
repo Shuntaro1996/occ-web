@@ -50,8 +50,10 @@
 
 ```
 occ-web/
-├── start.bat                   # 起動バッチ（ダブルクリックで起動）
+├── start.bat                   # Flask 版 Web GUI 起動バッチ
+├── start_streamlit.bat         # Streamlit 版 ダッシュボード起動バッチ
 └── system/                     # システム内部フォルダ
+    ├── streamlit_app.py        # Streamlit アプリケーション
     ├── README.md               # このファイル
     ├── STRUCTURE_AND_CUSTOMIZE.md # システム構成・カスタマイズ解説
     ├── backend/                # Python バックエンド (Flask + Waitress + OpenCV)
@@ -61,8 +63,8 @@ occ-web/
     │   ├── net_utils.py        # NIC 検出 & IP 計算ユーティリティ
     │   └── occ.exe             # 通信バイナリ ※別途ダウンロード必要 (GPL-3.0)
     └── frontend/               # Web フロントエンド
-
         ├── index.html          # HTML 構造
         ├── style.css           # ダークテーマ CSS
         └── app.js              # アプリケーションロジック
+
 ```

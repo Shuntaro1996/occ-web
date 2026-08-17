@@ -65,12 +65,12 @@ graph TD
 occ-web/
 ├── start.bat                   # Flask 版 Web GUI 起動バッチ (Port 5000)
 ├── start_streamlit.bat         # Streamlit 版 ダッシュボード起動バッチ (Port 8501)
-├── streamlit_app.py            # Streamlit アプリケーション本体 (Cloud対応)
 ├── requirements.txt            # Streamlit / 依存ライブラリ一覧
 ├── LICENSE                     # MIT License
 ├── THIRD_PARTY_LICENSES.md     # オープンソース使用表示
 ├── README.md                   # 本ドキュメント
 └── system/                     # システム内部フォルダ
+    ├── streamlit_app.py        # Streamlit アプリケーション本体 (Cloud対応)
     ├── README.md               # 詳細解説書
     ├── STRUCTURE_AND_CUSTOMIZE.md # システム構成・カスタマイズ解説
     ├── backend/                # Python バックエンド (Flask + Waitress + OpenCV)
@@ -80,7 +80,6 @@ occ-web/
     │   ├── net_utils.py        # NIC 検出 & IP 計算ユーティリティ
     │   └── occ.exe             # 通信バイナリ ※別途ダウンロード必要 (GPL-3.0)
     └── frontend/               # Web フロントエンド
-
         ├── index.html          # HTML 構造
         ├── style.css           # UI スタイル
         └── app.js              # フロントエンド制御ロジック
@@ -102,9 +101,10 @@ occ-web/
 
 #### A. Streamlit 版ダッシュボード (Port 8501)
 ```bash
-streamlit run streamlit_app.py
+streamlit run system/streamlit_app.py
 ```
 *または `start_streamlit.bat` をダブルクリック*
+
 
 #### B. Flask + Vanilla JS 版 Web GUI (Port 5000)
 1. `system/backend/` に `occ.exe` を配置（[Codemonkey1973/OCC](https://github.com/Codemonkey1973/OCC) から入手）
