@@ -40,3 +40,6 @@ Thumbs.db
 # Logs & Temp
 *.log
 *.tmp
+
+# OCC binary (GPL-3.0 licensed, obtain separately from https://github.com/Codemonkey1973/OCC)
+system/backend/occ.exe

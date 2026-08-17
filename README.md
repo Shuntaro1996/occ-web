@@ -47,6 +47,7 @@ graph TD
 occ-web/
 ├── start.bat                   # 起動バッチ（ダブルクリックで起動）
 ├── LICENSE                     # MIT License
+├── THIRD_PARTY_LICENSES.md     # オープンソース使用表示
 ├── README.md                   # 本ドキュメント
 └── system/                     # システム内部フォルダ
     ├── README.md               # 詳細解説書
@@ -56,7 +57,7 @@ occ-web/
     │   ├── occ_wrapper.py      # occ.exe ラッパー
     │   ├── streamer.py         # RTP 映像受信 & 配信（省電力ハートビート付）
     │   ├── net_utils.py        # NIC 検出 & IP 計算ユーティリティ
-    │   ├── occ.exe             # 通信バイナリ (配置済み)
+    │   ├── occ.exe             # 通信バイナリ ※別途ダウンロード必要 (GPL-3.0)
     │   └── requirements.txt    # 依存ライブラリ一覧
     └── frontend/               # Web フロントエンド
         ├── index.html          # HTML 構造
@@ -77,9 +78,12 @@ occ-web/
    ```bash
    git clone https://github.com/Shuntaro1996/occ-web.git
    ```
-2. フォルダ内の **`start.bat`** をダブルクリックします。
+2. **`occ.exe` を別途入手し配置します。**
+   * `occ.exe` はライセンスの都合上、本リポジトリに含まれていません。
+   * [Codemonkey1973/OCC](https://github.com/Codemonkey1973/OCC) の Releases ページからダウンロードし、`system/backend/occ.exe` に配置してください。
+3. フォルダ内の **`start.bat`** をダブルクリックします。
    * 初回起動時に自動で仮想環境（`.venv`）が作成され、必要な依存ライブラリがインストールされます。
-3. 自動的にブラウザが立ち上がり、操作画面（`http://localhost:5000`）が表示されます。
+4. 自動的にブラウザが立ち上がり、操作画面（`http://localhost:5000`）が表示されます。
 
 ---
 
@@ -97,6 +101,7 @@ occ-web/
 
 * **システム構造・カスタマイズ詳細**: [system/STRUCTURE_AND_CUSTOMIZE.md](system/STRUCTURE_AND_CUSTOMIZE.md)
 * **内部仕様書**: [system/README.md](system/README.md)
+* **オープンソース使用表示**: [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md)
 
 ---
 
@@ -108,4 +113,8 @@ occ-web/
 
 ## 📄 ライセンス (License)
 
-本プロジェクトは [MIT License](LICENSE) のもとで公開されています。
+本プロジェクトのコード（バックエンド・フロントエンド）は [MIT License](LICENSE) のもとで公開されています。
+
+本プロジェクトが使用するオープンソースソフトウェアについては [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) をご覧ください。
+
+> **Note**: 本リポジトリに `occ.exe` は含まれていません。[Codemonkey1973/OCC](https://github.com/Codemonkey1973/OCC)（GPL-3.0）から別途入手してください。
