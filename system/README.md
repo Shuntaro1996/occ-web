@@ -2,14 +2,11 @@
 
 [Orlaco EMOS IP カメラ](https://github.com/Codemonkey1973/OCC) の設定変更および**リアルタイム映像プレビュー**をWebブラウザから直感的に行える高信頼性GUIシステムです。
 
-👉 **Live Demo (即時起動): [https://net-ops-toolkit.streamlit.app](https://net-ops-toolkit.streamlit.app/)**
-
 ---
-
 
 ## 🌟 主な機能 (v1.2)
 
-- 🎥 **リアルタイム映像プレビュー & 産業用 OSD** — カメラからのRTPストリーム（H.264 / MJPEG）をイベント駆動で超低遅延表示。ファインダー風レティクル枠線、LIVEバッジ、リアルタイムタイムコード、全画面・静止画キャプチャ対応。
+- 🎥 **リアルタイム映像プレビュー & 産業用 OSD** — カメラからのRTPストリーム（H.264 / MJPEG）をイベント駆動で超低遅延表示。ファインダー風レティクル枠線、LIVEバッジ、ミリ秒精度タイムコード、全画面・静止画キャプチャ対応。
 - 💓 **省電力ハートビート & Graceful Shutdown** — プレビュー非表示時は自動でCPU負荷を抑制し、ブラウザ終了時は一時ファイル削除と安全なプロセス終了を実行。
 - 🌐 **マルチ NIC 自動検出 & ヘッダー常時ステータス** — 有線LANとWi-Fiが混在する現場PCでも、カメラ接続用のLANアダプターを選択するだけでIP・ブロードキャストIPを自動補完し、ヘッダーに稼働状態とNIC情報を常時表示。
 - 🛡️ **文鎮化（通信不能）防止ガード** — PCのIPと異なるサブネットへの変更時に警告ダイアログを表示し、誤設定によるアクセス不能を未然に防止。
@@ -18,19 +15,18 @@
 - ⚙️ **映像設定 (ROI)** — 解像度・FPS・コーデック・ビットレート・センサー切り取り範囲をフォームとスライダーで調整。
 - 🔄 **設定反映 & 自動再起動催促** — 設定送信後、自動的に再起動を催促し、ワンクリックで再起動コマンドを実行。
 - 📋 **詳細レジスタ編集** — 全レジスタ一覧の確認および1バイト単位の直接書き込み。
-- 🚀 **Waitress WSGI 本番サーバー & 完全ポータブル仕様** — フォルダごと別PCにコピーして `start.bat` をダブルクリックするだけで自動セットアップ＆起動。
-
+- 🚀 **完全ポータブル・パスワード不要** — フォルダごと別PCにコピーして `start.bat` をダブルクリックするだけで自動セットアップ＆即座に起動。
 
 ---
 
 ## 🚀 クイックスタート
 
 ### 1. 準備（初回のみ）
-- `backend/` フォルダに `occ.exe` を配置します（[元リポジトリ](https://github.com/Codemonkey1973/OCC) よりダウンロード）。
+- `system/backend/` フォルダに `occ.exe` を配置します（[Codemonkey1973/OCC](https://github.com/Codemonkey1973/OCC) よりダウンロード）。
 
 ### 2. 起動
 `start.bat` をダブルクリックするだけです。
-- 自動的に仮想環境の構築と依存パッケージのインストールを行い、ブラウザで `http://localhost:5000` を開きます。
+- 自動的に仮想環境の構築と依存パッケージのインストールを行い、ブラウザで `http://localhost:5000` を開きます（パスワード入力不要）。
 
 ---
 
@@ -50,10 +46,12 @@
 
 ```
 occ-web/
-├── start.bat                   # Flask 版 Web GUI 起動バッチ
-├── start_streamlit.bat         # Streamlit 版 ダッシュボード起動バッチ
+├── start.bat                   # 起動バッチ（ダブルクリックで起動）
+├── requirements.txt            # 依存ライブラリ一覧
+├── LICENSE                     # MIT License
+├── THIRD_PARTY_LICENSES.md     # オープンソース使用表示
+├── README.md                   # 全体ドキュメント
 └── system/                     # システム内部フォルダ
-    ├── streamlit_app.py        # Streamlit アプリケーション
     ├── README.md               # このファイル
     ├── STRUCTURE_AND_CUSTOMIZE.md # システム構成・カスタマイズ解説
     ├── backend/                # Python バックエンド (Flask + Waitress + OpenCV)
@@ -66,5 +64,4 @@ occ-web/
         ├── index.html          # HTML 構造
         ├── style.css           # ダークテーマ CSS
         └── app.js              # アプリケーションロジック
-
 ```
