@@ -234,13 +234,14 @@ async function checkServerStatus() {
       els.headerServerStatusLabel.textContent = `稼働中 (v${data.version || '1.2.0'})`;
     }
     if (!data.occ || !data.occ.available) {
-      showToast('error', 'occ.exe が見つかりません', 'backend/ フォルダに occ.exe を配置してください。', 8000);
+      showToast('warning', 'occ.exe が未配置です', 'system/backend/ フォルダに occ.exe を配置してください（Codemonkey1973/OCC より入手）。', 10000);
     }
   } catch {
     els.headerServerStatus.className = 'status-indicator error';
     els.headerServerStatusLabel.textContent = 'オフライン';
-    showToast('warning', 'バックエンドに接続できません', 'start.bat を実行してください。', 8000);
+    showToast('warning', 'バックエンドに接続できません', 'start.bat を実行してサーバーを起動してください。', 8000);
   }
+
 }
 
 async function loadNetworkInterfaces() {

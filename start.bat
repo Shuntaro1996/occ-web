@@ -6,10 +6,19 @@ title OCC-Web Launcher
 
 python --version >nul 2>&1
 if errorlevel 1 (
-    echo [ERROR] Python 3.10+ is not found.
+    echo ======================================================================
+    echo  [エラー] Python が見つかりません。
+    echo  Python 3.10 以上がインストールされているか、PATH に追加されているか
+    echo  ご確認ください。
+    echo.
+    echo  ※ インストール時は必ず「Add python.exe to PATH」にチェックを入れてください。
+    echo  ダウンロード: https://www.python.org/downloads/
+    echo ======================================================================
+    echo.
     pause
     exit /b 1
 )
+
 
 if not exist "system\.venv\Scripts\python.exe" (
     echo [SETUP] Creating Python virtual environment...
