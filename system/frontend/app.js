@@ -1,11 +1,11 @@
 /**
  * app.js - Orlaco EMOS Camera Configurator GUI
- * フロントエンドアプリケーションロジック (v1.1 - SE改善版)
+ * フロントエンドアプリケーションロジック (v1.2 - SE & デザイナー統合版)
  *
- * - マルチ NIC アダプター自動検出 & IP/ブロードキャスト自動補完
+ * - マルチ NIC アダプター自動検出 & ヘッダーバッジ表示
+ * - 産業用 OSD & リアルタイム映像プレビュー
  * - カメラ誤設定による文鎮化（通信不能）防止ガード
  * - 設定プリセットの JSON エクスポート / インポート
- * - リアルタイム映像プレビュー & 省電力ハートビート
  * - 設定反映の自動再起動催促モーダル
  */
 
@@ -31,6 +31,7 @@ const state = {
   activePresetName: null,   // 現在適用中のプリセット名
   previewRunning: false,    // プレビュー受信中フラグ
   previewPollTimer: null,   // ステータス監視タイマー
+  osdTimer: null,           // OSD タイムコード更新タイマー
   pendingNetworkApply: null,// 警告確認待ちの設定ペイロード
 };
 
@@ -41,6 +42,12 @@ const state = {
 const $ = (id) => document.getElementById(id);
 
 const els = {
+  // ヘッダーステータス
+  headerServerStatus:     $('header-server-status'),
+  headerServerStatusLabel:$('header-server-status-label'),
+  headerNicBadge:         $('header-nic-badge'),
+  headerNicName:          $('header-nic-name'),
+
   // 発見
   broadcastIp:          $('broadcast-ip'),
   btnDiscover:          $('btn-discover'),
@@ -76,7 +83,7 @@ const els = {
   tabBtns:              document.querySelectorAll('.tab-btn'),
   tabPanels:            document.querySelectorAll('.tab-panel'),
 
-  // リアルタイム映像プレビュー
+  // リアルタイム映像プレビュー & OSD
   previewLiveStatus:    $('preview-live-status'),
   previewStatusText:    $('preview-status-text'),
   statResolution:       $('stat-resolution'),
@@ -89,6 +96,10 @@ const els = {
   btnPreviewFullscreen: $('btn-preview-fullscreen'),
   previewPortInput:     $('preview-port-input'),
   previewCodecSelect:   $('preview-codec-select'),
+  osdCamIp:             $('osd-cam-ip'),
+  osdTime:              $('osd-time'),
+  osdCodecInfo:         $('osd-codec-info'),
+  osdResInfo:           $('osd-res-info'),
 
   // 映像設定 (ROI)
   roiIndexSelect:       $('roi-index-select'),
@@ -218,10 +229,16 @@ function escapeHtml(str) {
 async function checkServerStatus() {
   try {
     const data = await apiFetch('GET', '/api/status');
+    if (data.server === 'ok') {
+      els.headerServerStatus.className = 'status-indicator ok';
+      els.headerServerStatusLabel.textContent = `稼働中 (v${data.version || '1.2.0'})`;
+    }
     if (!data.occ || !data.occ.available) {
       showToast('error', 'occ.exe が見つかりません', 'backend/ フォルダに occ.exe を配置してください。', 8000);
     }
   } catch {
+    els.headerServerStatus.className = 'status-indicator error';
+    els.headerServerStatusLabel.textContent = 'オフライン';
     showToast('warning', 'バックエンドに接続できません', 'start.bat を実行してください。', 8000);
   }
 }
@@ -248,6 +265,11 @@ function selectInterface(idx) {
   if (!iface) return;
 
   state.selectedInterface = iface;
+  
+  // ヘッダーバッジ更新
+  els.headerNicBadge.style.display = 'flex';
+  els.headerNicName.textContent = `${iface.name} (${iface.ip})`;
+
   // 未入力の場合のみセット
   if (!els.broadcastIp.value) {
     els.broadcastIp.value = iface.broadcast || '192.168.2.10';
@@ -353,6 +375,9 @@ function selectCamera(ip) {
   els.controlPanel.style.display = 'block';
   initPresetPanel();
 
+  // OSD 更新
+  if (els.osdCamIp) els.osdCamIp.textContent = `CAM: ${ip}`;
+
   startPreview();
   showToast('info', 'カメラを選択しました', ip);
 }
@@ -389,7 +414,7 @@ async function setCameraMode(mode) {
 }
 
 // =========================================================================
-// リアルタイム映像プレビュー機能
+// リアルタイム映像プレビュー & 産業用 OSD
 // =========================================================================
 
 async function startPreview() {
@@ -406,6 +431,7 @@ async function startPreview() {
     els.btnPreviewToggle.className = 'btn btn-danger';
     els.cameraPreviewImg.src = `/api/video_feed?t=${Date.now()}`;
     startPreviewPolling();
+    startOsdTimer();
   }
 }
 
@@ -418,6 +444,7 @@ async function stopPreview() {
   `;
   els.btnPreviewToggle.className = 'btn btn-primary';
   stopPreviewPolling();
+  stopOsdTimer();
   updatePreviewUi({ running: false, connected: false, fps: 0, resolution: '-', status_message: '停止中' });
 }
 
@@ -451,6 +478,25 @@ function stopPreviewPolling() {
   }
 }
 
+function startOsdTimer() {
+  stopOsdTimer();
+  const updateTime = () => {
+    const now = new Date();
+    if (els.osdTime) {
+      els.osdTime.textContent = now.toTimeString().split(' ')[0];
+    }
+  };
+  updateTime();
+  state.osdTimer = setInterval(updateTime, 1000);
+}
+
+function stopOsdTimer() {
+  if (state.osdTimer) {
+    clearInterval(state.osdTimer);
+    state.osdTimer = null;
+  }
+}
+
 function updatePreviewUi(status) {
   if (status.connected) {
     els.previewLiveStatus.className = 'preview-live-indicator live';
@@ -464,8 +510,17 @@ function updatePreviewUi(status) {
   }
 
   els.statResolution.textContent = status.resolution || '-';
-  els.statFps.textContent = (status.fps !== undefined) ? status.fps.toFixed(1) : '0.0';
+  const fpsStr = (status.fps !== undefined) ? status.fps.toFixed(1) : '0.0';
+  els.statFps.textContent = fpsStr;
   els.statPort.textContent = `${status.port || 5004} UDP`;
+
+  // OSD 更新
+  if (els.osdCodecInfo) {
+    els.osdCodecInfo.textContent = `${(status.codec || 'H.264').toUpperCase()} / UDP:${status.port || 5004}`;
+  }
+  if (els.osdResInfo) {
+    els.osdResInfo.textContent = `${status.resolution || '1280x720'} @ ${fpsStr}fps`;
+  }
 }
 
 function captureSnapshot() {

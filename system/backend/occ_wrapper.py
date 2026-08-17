@@ -452,3 +452,13 @@ _REGISTER_NAMES = {
 
 def _get_register_name(address: str) -> str:
     return _REGISTER_NAMES.get(address.lower(), f"Unknown ({address})")
+
+
+# エイリアス関数（呼び出し互換性確保）
+read_registers = get_registers
+write_register = set_register
+write_registers_bulk = set_registers
+read_roi = get_roi
+read_all_rois = get_all_rois
+write_roi = set_roi
+

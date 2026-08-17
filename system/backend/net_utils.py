@@ -8,6 +8,7 @@ IPアドレス、サブネットマスク、ブロードキャストアドレス
 import socket
 import subprocess
 import re
+import ipaddress
 import logging
 from typing import List, Dict
 
@@ -48,8 +49,8 @@ def get_network_interfaces() -> List[Dict[str, str]]:
         for line in proc.stdout.splitlines():
             line_str = line.strip()
             
-            # アダプター見出し (例: "イーサネット アダプター イーサネット:" or "Wireless LAN adapter Wi-Fi:")
-            adapter_match = re.match(r"^(.+?アダプター|.+?adapter)\s+(.+?):$", line)
+            # アダプター見出し (例: "イーサネット アダプター イーサネット:" or "Ethernet adapter Ethernet:")
+            adapter_match = re.match(r"^(.+?アダプター|.+?adapter)\s+(.+?):$", line_str, re.IGNORECASE)
             if adapter_match:
                 # 前のアダプターを保存
                 if current_adapter and current_ip:
@@ -66,16 +67,16 @@ def get_network_interfaces() -> List[Dict[str, str]]:
                 continue
                 
             # IPv4 アドレス
-            ip_match = re.search(r"IPv4\s*(アドレス|Address)[.\s]*:\s*([0-9.]+)", line)
+            ip_match = re.search(r"IPv4\s*(アドレス|Address)[.\s]*:\s*([0-9.]+)", line_str, re.IGNORECASE)
             if ip_match:
                 ip_val = ip_match.group(2).replace("(優先)", "").replace("(Preferred)", "").strip()
                 if not ip_val.startswith("127.") and not ip_val.startswith("169.254."):
                     current_ip = ip_val
                     
             # サブネットマスク
-            mask_match = re.search(r"サブネット\s*マスク[.\s]*:\s*([0-9.]+)|Subnet\s*Mask[.\s]*:\s*([0-9.]+)", line)
+            mask_match = re.search(r"(サブネット\s*マスク|Subnet\s*Mask)[.\s]*:\s*([0-9.]+)", line_str, re.IGNORECASE)
             if mask_match:
-                current_mask = (mask_match.group(1) or mask_match.group(2)).strip()
+                current_mask = mask_match.group(2).strip()
                 
         # 最後のブロックを保存
         if current_adapter and current_ip:
@@ -113,13 +114,11 @@ def get_network_interfaces() -> List[Dict[str, str]]:
 def _calc_broadcast(ip_str: str, mask_str: str) -> str:
     """IP アドレスとサブネットマスクからブロードキャスト IP を計算する。"""
     try:
-        ip_parts = [int(p) for p in ip_str.split(".")]
-        mask_parts = [int(p) for p in mask_str.split(".")]
-        if len(ip_parts) == 4 and len(mask_parts) == 4:
-            bcast_parts = [(ip_parts[i] | (~mask_parts[i] & 0xFF)) for i in range(4)]
-            return ".".join(str(p) for p in bcast_parts)
+        network = ipaddress.IPv4Network(f"{ip_str}/{mask_str}", strict=False)
+        return str(network.broadcast_address)
     except Exception:
         pass
+
     # フォールバック (Cクラス想定)
     parts = ip_str.split(".")
     if len(parts) == 4:

@@ -7,7 +7,7 @@
   <meta name="description" content="Orlaco EMOS IP カメラのリアルタイム映像プレビュー・解像度・FPS・ネットワーク設定GUI">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -27,6 +27,20 @@
           <span>Camera Configurator</span>
         </div>
       </div>
+
+      <!-- ヘッダー右側：サーバーステータス & 接続中 NIC -->
+      <div class="header-status-area">
+        <div class="status-indicator ok" id="header-server-status">
+          <span class="status-dot"></span>
+          <span class="status-label" id="header-server-status-label">サーバー稼働中</span>
+        </div>
+        <div class="status-badge-nic" id="header-nic-badge" title="選択中のネットワークアダプター" style="display:none;">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/>
+          </svg>
+          <span id="header-nic-name">イーサネット (192.168.2.100)</span>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -44,15 +58,15 @@
           <h2>カメラ発見</h2>
         </div>
         <div class="panel-body">
-          <div class="connection-notice" style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: var(--radius-md); padding: 9px 10px; margin-bottom: 10px; font-size: 11px; line-height: 1.5; color: var(--color-text-secondary); display: flex; gap: 8px; align-items: flex-start;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px; color: var(--color-primary); flex-shrink: 0; margin-top: 1px;">
+          <div class="callout-box callout-info">
+            <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
               <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
               <line x1="6" y1="6" x2="6.01" y2="6"/>
               <line x1="6" y1="18" x2="6.01" y2="18"/>
             </svg>
             <div>
-              <strong style="color: var(--color-text-primary); display: block; margin-bottom: 2px;">有線LAN接続の確認</strong>
+              <strong class="callout-title">有線LAN接続の確認</strong>
               PCとカメラを有線LANケーブルで接続してください（同一ネットワーク/直結）。
             </div>
           </div>
@@ -60,7 +74,7 @@
             <label for="broadcast-ip">カメラのIPアドレス</label>
             <input type="text" id="broadcast-ip" class="input input-mono" placeholder="192.168.2.10" value="192.168.2.10" autocomplete="off">
           </div>
-          <button class="btn btn-primary btn-full" id="btn-discover" style="margin-top: 8px;">
+          <button class="btn btn-primary btn-full" id="btn-discover">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 12a9 9 0 11-6.219-8.56"/>
             </svg>
@@ -143,14 +157,14 @@
           </div>
 
           <div class="preset-io-buttons">
-            <button class="btn btn-secondary btn-sm" id="btn-export-presets" title="プリセットをJSONファイルとしてダウンロード">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;">
+            <button class="btn btn-secondary btn-sm btn-icon-xs" id="btn-export-presets" title="プリセットをJSONファイルとしてダウンロード">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
               </svg>
               エクスポート
             </button>
-            <label class="btn btn-secondary btn-sm" id="btn-import-presets-label" title="JSONファイルからプリセットを読み込み" style="cursor:pointer;">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;">
+            <label class="btn btn-secondary btn-sm btn-icon-xs" id="btn-import-presets-label" title="JSONファイルからプリセットを読み込み" style="cursor:pointer;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
               </svg>
               インポート
@@ -198,7 +212,7 @@
         </div>
       </div>
 
-      <!-- タブナビゲーション -->
+      <!-- タブコンテナ -->
       <div class="tab-container" id="tab-container" style="display:none">
         <nav class="tab-nav">
           <button class="tab-btn active" data-tab="preview">
@@ -246,8 +260,29 @@
                 </div>
               </div>
 
+              <!-- 映像スクリーン & ファインダーレティクル & OSD -->
               <div class="preview-screen-container" id="preview-screen-container">
                 <img id="camera-preview-img" class="camera-preview-img" src="/api/video_feed" alt="カメラ映像プレビュー">
+                
+                <!-- ファインダー枠線 -->
+                <div class="preview-reticle">
+                  <div class="reticle-corner reticle-tl"></div>
+                  <div class="reticle-corner reticle-tr"></div>
+                  <div class="reticle-corner reticle-bl"></div>
+                  <div class="reticle-corner reticle-br"></div>
+                </div>
+
+                <!-- OSD オーバーレイ -->
+                <div class="preview-osd-overlay">
+                  <div class="preview-osd-top">
+                    <span class="osd-badge" id="osd-cam-ip">EMOS-CAM</span>
+                    <span class="osd-badge" id="osd-time">--:--:--</span>
+                  </div>
+                  <div class="preview-osd-bottom">
+                    <span class="osd-badge" id="osd-codec-info">H.264 / RTP</span>
+                    <span class="osd-badge" id="osd-res-info">1280x720 @ 30FPS</span>
+                  </div>
+                </div>
               </div>
 
               <div class="preview-control-bar">
@@ -276,7 +311,7 @@
                   <label for="preview-port-input">受信ポート (UDP):</label>
                   <input type="number" id="preview-port-input" class="input input-sm" value="5004" min="1024" max="65535">
                   <label for="preview-codec-select" style="margin-left: 8px;">デコード:</label>
-                  <select id="preview-codec-select" class="select" style="padding-right: 24px;">
+                  <select id="preview-codec-select" class="select" style="width: 90px; padding: 4px 8px; font-size: 12px;">
                     <option value="h264">H.264</option>
                     <option value="mjpeg">MJPEG</option>
                   </select>
@@ -292,8 +327,8 @@
                 </svg>
                 <h3>映像が表示されない場合の手順</h3>
               </div>
-              <div class="settings-card-body" style="font-size: 12px; line-height: 1.6; color: var(--color-text-secondary);">
-                <ol style="padding-left: 20px; display: flex; flex-direction: column; gap: 6px;">
+              <div class="settings-card-body">
+                <ol style="padding-left: 20px; display: flex; flex-direction: column; gap: 8px; font-size: 12px; line-height: 1.6; color: var(--color-text-secondary);">
                   <li>「<strong>ネットワーク</strong>」タブで、カメラの「<strong>RTP 送信先 IP</strong>」をこのPCのIPアドレスに、「<strong>ポート</strong>」を受信ポート（デフォルト: 5004）に設定して適用します。</li>
                   <li>設定適用後、左サイドバーの「<strong>🔄 再起動</strong>」ボタンを押してカメラを再起動します。</li>
                   <li>再起動後、左サイドバーの「<strong>▶ 配信開始</strong>」ボタンを押して映像配信を開始します。</li>
@@ -308,9 +343,9 @@
         <!-- タブ 2: 映像設定 (ROI) -->
         <div class="tab-panel" id="tab-video">
           <div class="tab-toolbar">
-            <div class="roi-selector">
-              <label for="roi-index-select">ROI インデックス</label>
-              <select id="roi-index-select" class="select">
+            <div class="roi-selector" style="display: flex; align-items: center; gap: 10px;">
+              <label for="roi-index-select" style="font-size: 13px; font-weight: 500; color: var(--color-text-secondary);">ROI インデックス</label>
+              <select id="roi-index-select" class="select" style="width: 160px;">
                 <option value="0">ROI 0 (メイン)</option>
                 <option value="1">ROI 1</option>
                 <option value="2">ROI 2</option>
@@ -333,18 +368,15 @@
           </div>
 
           <!-- 現在のプリセット表示バー -->
-          <div class="preset-active-bar" id="preset-active-bar" style="display:none">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
-              <polyline points="17 21 17 13 7 13 7 21"/>
-            </svg>
-            <span>適用中プリセット:</span>
-            <strong id="preset-active-name">-</strong>
-            <button class="btn-preset-clear" id="btn-clear-preset" title="プリセット選択解除">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          <div class="callout-box callout-info" id="preset-active-bar" style="display:none; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
               </svg>
-            </button>
+              <span>適用中プリセット: <strong id="preset-active-name">-</strong></span>
+            </div>
+            <button class="btn-text" id="btn-clear-preset" title="プリセット選択解除">[解除]</button>
           </div>
 
           <div class="settings-grid">
@@ -366,14 +398,14 @@
                   <button class="preset-btn" data-w="320" data-h="240">320×240</button>
                 </div>
                 <div class="resolution-inputs">
-                  <div class="form-group">
+                  <div class="form-group" style="flex:1;">
                     <label for="output-width">幅 (px)</label>
-                    <input type="number" id="output-width" class="input" value="1280" min="1" max="1920" step="1">
+                    <input type="number" id="output-width" class="input input-mono" value="1280" min="1" max="1920" step="1">
                   </div>
                   <div class="resolution-x">×</div>
-                  <div class="form-group">
+                  <div class="form-group" style="flex:1;">
                     <label for="output-height">高さ (px)</label>
-                    <input type="number" id="output-height" class="input" value="720" min="1" max="1080" step="1">
+                    <input type="number" id="output-height" class="input input-mono" value="720" min="1" max="1080" step="1">
                   </div>
                 </div>
               </div>
@@ -457,7 +489,7 @@
                     <span>Mb/s</span>
                   </div>
                 </div>
-                <div class="bitrate-hint">推奨: H.264 → 10-50 Mb/s / JPEG → 50-100 Mb/s</div>
+                <div class="form-hint" style="margin-top: 8px;">推奨: H.264 → 10-50 Mb/s / JPEG → 50-100 Mb/s</div>
               </div>
             </div>
 
@@ -474,19 +506,19 @@
                 <div class="roi-coordinate-grid">
                   <div class="form-group">
                     <label for="p1x">左上 X (P1X)</label>
-                    <input type="number" id="p1x" class="input" value="0" min="0" max="1920">
+                    <input type="number" id="p1x" class="input input-mono" value="0" min="0" max="1920">
                   </div>
                   <div class="form-group">
                     <label for="p1y">左上 Y (P1Y)</label>
-                    <input type="number" id="p1y" class="input" value="0" min="0" max="1080">
+                    <input type="number" id="p1y" class="input input-mono" value="0" min="0" max="1080">
                   </div>
                   <div class="form-group">
                     <label for="p2x">右下 X (P2X)</label>
-                    <input type="number" id="p2x" class="input" value="1280" min="0" max="1920">
+                    <input type="number" id="p2x" class="input input-mono" value="1280" min="0" max="1920">
                   </div>
                   <div class="form-group">
                     <label for="p2y">右下 Y (P2Y)</label>
-                    <input type="number" id="p2y" class="input" value="720" min="0" max="1080">
+                    <input type="number" id="p2y" class="input input-mono" value="720" min="0" max="1080">
                   </div>
                 </div>
                 <p class="form-hint">※ センサー全体を使用する場合は P1X=0, P1Y=0, P2X=センサー幅, P2Y=センサー高さを設定してください</p>
@@ -532,7 +564,7 @@
                     <input type="checkbox" id="dhcp-enabled">
                     <span class="toggle-slider"></span>
                   </label>
-                  <span class="toggle-label">DHCP を使用する</span>
+                  <span class="toggle-label" style="font-weight: 500;">DHCP を使用する</span>
                 </div>
                 <div class="static-ip-fields" id="static-ip-fields">
                   <div class="network-inputs">
@@ -560,9 +592,9 @@
               <div class="settings-card-body">
                 <div class="network-inputs">
                   <div class="form-group">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                      <label for="rtp-dest-ip">送信先 IP アドレス</label>
-                      <button type="button" class="btn-text" id="btn-fill-pc-ip" style="font-size:11px; color:var(--color-accent); background:none; border:none; cursor:pointer; padding:0;">[このPCのIPを設定]</button>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 6px;">
+                      <label for="rtp-dest-ip" style="margin-bottom:0;">送信先 IP アドレス</label>
+                      <button type="button" class="btn-text" id="btn-fill-pc-ip">[このPCのIPを設定]</button>
                     </div>
                     <input type="text" id="rtp-dest-ip" class="input input-mono" placeholder="192.168.2.100" autocomplete="off">
                   </div>
@@ -687,7 +719,7 @@
   <div id="restart-modal" class="modal-overlay" style="display:none">
     <div class="modal-card">
       <div class="modal-icon-wrapper">
-        <svg class="modal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M21 12a9 9 0 11-6.219-8.56"/>
         </svg>
       </div>
@@ -715,9 +747,9 @@
 
   <!-- 文鎮化・IP不整合警告モーダル -->
   <div id="warning-modal" class="modal-overlay" style="display:none">
-    <div class="modal-card" style="border-color: rgba(239, 68, 68, 0.5);">
-      <div class="modal-icon-wrapper" style="background:var(--color-danger-subtle); color:var(--color-danger); border-color:rgba(239, 68, 68, 0.4);">
-        <svg class="modal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <div class="modal-card modal-danger">
+      <div class="modal-icon-wrapper">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
           <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>

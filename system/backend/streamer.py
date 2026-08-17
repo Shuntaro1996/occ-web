@@ -3,12 +3,13 @@ streamer.py - Orlaco EMOS RTP 映像ストリーム受信＆MJPEG配信モジュ
 
 カメラから送信される RTP (H.264 / MJPEG) UDP パケットを受信し、
 Web ブラウザで表示可能な MJPEG ストリームに変換して配信する。
-クライアント非接続時の自動アイドル・省電力機能を搭載。
+クライアント非接続時の自動アイドル・省電力機能およびイベント駆動配信を搭載。
 """
 
 import os
 import sys
 import time
+import atexit
 import tempfile
 import threading
 import logging
@@ -29,6 +30,7 @@ except ImportError:
 class VideoStreamer:
     """
     RTP ストリームの受信とフレームキャッシュを管理するシングルトンクラス。
+    Condition 変数を用いてイベント駆動型で低遅延 MJPEG 配信を行う。
     """
     def __init__(self):
         self.running = False
@@ -36,6 +38,7 @@ class VideoStreamer:
         self.codec = "h264"  # "h264" or "mjpeg"
         self.thread: Optional[threading.Thread] = None
         self.lock = threading.Lock()
+        self.frame_condition = threading.Condition(self.lock)
         
         self.latest_frame: Optional[bytes] = None
         self.frame_count = 0
@@ -47,6 +50,19 @@ class VideoStreamer:
         self.active_clients = 0
         self.is_connected = False
         self._sdp_path: Optional[str] = None
+
+        # プロセス終了時のクリーンアップ登録
+        atexit.register(self.cleanup)
+
+    def cleanup(self):
+        """プロセス終了時のリソースクリーンアップ。"""
+        self.stop()
+        if self._sdp_path and os.path.exists(self._sdp_path):
+            try:
+                os.remove(self._sdp_path)
+            except Exception:
+                pass
+            self._sdp_path = None
 
     def _create_sdp_file(self, port: int, codec: str) -> str:
         """OpenCV / FFmpeg 用の SDP ファイルを作成する。"""
@@ -102,7 +118,10 @@ class VideoStreamer:
     def stop(self) -> dict:
         """ストリーム受信を停止する。"""
         self.running = False
-        if self.thread and self.thread.is_alive():
+        with self.frame_condition:
+            self.frame_condition.notify_all()
+
+        if self.thread and self.thread.is_alive() and threading.current_thread() != self.thread:
             self.thread.join(timeout=1.0)
             
         self.is_connected = False
@@ -180,8 +199,9 @@ class VideoStreamer:
                     "OpenCV がインストールされていません",
                     "pip install opencv-python-headless を実行してください"
                 )
-                with self.lock:
+                with self.frame_condition:
                     self.latest_frame = frame
+                    self.frame_condition.notify_all()
                 time.sleep(0.5)
             return
 
@@ -206,11 +226,12 @@ class VideoStreamer:
                     self.status_message = f"UDP ポート {self.current_port} からのパケット受信待機中..."
                     self.is_connected = False
                     
-                    with self.lock:
+                    with self.frame_condition:
                         self.latest_frame = self._generate_placeholder_frame(
                             "カメラからの映像信号を受信待機中...",
                             f"カメラ側設定: RTP 送信先 IP=(このPCのIP), ポート={self.current_port}"
                         )
+                        self.frame_condition.notify_all()
                     
                     cap = cv2.VideoCapture(self._sdp_path, cv2.CAP_FFMPEG)
                     cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
@@ -219,15 +240,16 @@ class VideoStreamer:
 
                 ret, frame = cap.read()
                 if not ret or frame is None:
-                    time.sleep(0.05)
+                    time.sleep(0.02)
                     if time.time() - self.last_frame_time > 3.0:
                         self.is_connected = False
                         self.status_message = "映像信号が途絶えました（再接続試行中...）"
-                        with self.lock:
+                        with self.frame_condition:
                             self.latest_frame = self._generate_placeholder_frame(
                                 "映像信号が途絶えました",
                                 "カメラの電源、IP設定、LANケーブル接続を確認してください"
                             )
+                            self.frame_condition.notify_all()
                         cap.release()
                         cap = None
                     continue
@@ -250,10 +272,11 @@ class VideoStreamer:
                 _, jpeg = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), 80])
                 jpeg_bytes = jpeg.tobytes()
 
-                with self.lock:
+                with self.frame_condition:
                     self.latest_frame = jpeg_bytes
+                    self.frame_condition.notify_all()
 
-                time.sleep(0.005)
+                time.sleep(0.002)
 
             except Exception as e:
                 logger.error(f"Stream capture exception: {e}")
@@ -268,7 +291,7 @@ class VideoStreamer:
             cap.release()
 
     def generate_frames(self) -> Generator[bytes, None, None]:
-        """Flask の Response 用 MJPEG ジェネレータ関数。"""
+        """Flask の Response 用 MJPEG ジェネレータ関数 (イベント駆動)。"""
         self.active_clients += 1
         self.last_client_access = time.time()
 
@@ -276,16 +299,18 @@ class VideoStreamer:
             self.latest_frame = self._generate_placeholder_frame("映像プレビュー停止中", "「プレビュー開始」ボタンを押してください")
 
         try:
+            last_sent_frame = None
             while True:
                 self.last_client_access = time.time()
-                with self.lock:
+                with self.frame_condition:
+                    # 新しいフレームが来るか、最大100ms待機
+                    self.frame_condition.wait(timeout=0.1)
                     frame = self.latest_frame
 
-                if frame:
+                if frame and frame is not last_sent_frame:
+                    last_sent_frame = frame
                     yield (b"--frame\r\n"
                            b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
-                
-                time.sleep(0.033)
         finally:
             self.active_clients = max(0, self.active_clients - 1)
 
