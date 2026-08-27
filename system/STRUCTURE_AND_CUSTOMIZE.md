@@ -32,7 +32,9 @@
 occ-web/
 │
 ├── start.bat                   ★ 起動用バッチファイル（ダブルクリックで起動）
+├── debug_start.bat             ★ トラブルシューティング・デバッグ用起動バッチ
 ├── requirements.txt            ★ Python依存パッケージ一覧
+
 ├── LICENSE                     ★ MIT License
 ├── THIRD_PARTY_LICENSES.md     ★ オープンソース使用表示
 ├── README.md                   ★ 全体ドキュメント

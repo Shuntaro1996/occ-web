@@ -46,12 +46,14 @@
 
 ```
 occ-web/
-├── start.bat                   # 起動バッチ（ダブルクリックで起動）
+├── start.bat                   # 通常起動バッチ（ダブルクリックで即起動・自動待機）
+├── debug_start.bat             # デバッグ用起動バッチ（コンソールログ確認用）
 ├── requirements.txt            # 依存ライブラリ一覧
 ├── LICENSE                     # MIT License
 ├── THIRD_PARTY_LICENSES.md     # オープンソース使用表示
 ├── README.md                   # 全体ドキュメント
 └── system/                     # システム内部フォルダ
+
     ├── README.md               # このファイル
     ├── STRUCTURE_AND_CUSTOMIZE.md # システム構成・カスタマイズ解説
     ├── backend/                # Python バックエンド (Flask + Waitress + OpenCV)

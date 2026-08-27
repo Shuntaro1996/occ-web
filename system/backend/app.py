@@ -19,12 +19,25 @@ import occ_wrapper as occ
 import streamer
 import net_utils
 
-# ロギング設定
+# パス設定
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+LOG_FILE = os.path.join(BASE_DIR, "..", "server.log")
+
+# ロギング設定 (コンソール & ファイル両方に出力)
+handlers = [logging.StreamHandler(sys.stdout)]
+try:
+    file_handler = logging.FileHandler(LOG_FILE, encoding="utf-8", mode="a")
+    handlers.append(file_handler)
+except Exception:
+    pass
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    handlers=handlers,
 )
 logger = logging.getLogger(__name__)
+
 
 # Flask アプリ初期化
 app = Flask(__name__)
@@ -434,7 +447,18 @@ if __name__ == "__main__":
     # 本番用 WSGI サーバー Waitress で起動
     try:
         from waitress import serve
+        logger.info("Starting Waitress WSGI server on port 5000...")
         serve(app, host="0.0.0.0", port=5000, threads=8)
     except ImportError:
         logger.warning("Waitress not installed. Falling back to Flask dev server.")
         app.run(host="0.0.0.0", port=5000, debug=False)
+    except OSError as e:
+        logger.error(f"Failed to bind to port 5000: {e}")
+        logger.error("ポート 5000 が他のプロセスによって使用されている可能性があります。")
+        print(f"\n[エラー] ポート 5000 の起動に失敗しました: {e}")
+        print("他のアプリ（AirPlay、Docker 等）がポート 5000 を使用していないか確認してください。")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Server startup failed: {e}")
+        sys.exit(1)
+

@@ -44,7 +44,8 @@ graph TD
 
 ```
 occ-web/
-├── start.bat                   # 起動バッチ（ダブルクリックで即起動）
+├── start.bat                   # 通常起動バッチ（ダブルクリックで即起動・自動待機）
+├── debug_start.bat             # デバッグ用起動バッチ（コンソールログ確認用）
 ├── requirements.txt            # 依存ライブラリ一覧
 ├── LICENSE                     # MIT License
 ├── THIRD_PARTY_LICENSES.md     # オープンソース使用表示
@@ -80,8 +81,11 @@ occ-web/
    * [Codemonkey1973/OCC](https://github.com/Codemonkey1973/OCC) の Releases ページからダウンロードし、`system/backend/occ.exe` に配置してください。
 2. **`start.bat` をダブルクリックします。**
    * 初回起動時に自動で仮想環境（`system\.venv`）が作成され、必要なライブラリがインストールされます。
-3. **自動的にブラウザが立ち上がり、操作画面（`http://localhost:5000`）が表示されます。**
-   * ログインやパスワードの入力は一切不要です。
+   * サーバー起動を自動検知してからブラウザ（`http://localhost:5000`）が開きます。
+
+> 🛠️ **うまく起動しない・画面が開かない場合**:
+> フォルダ内の **`debug_start.bat`** をダブルクリックしてください。コマンドプロンプト上にリアルタイムで起動ログやエラーメッセージが表示され、原因（Pythonの未検出、ポート5000の重複など）を確認できます。また、`system/server.log` にもログが出力されます。
+
 
 ---
 
